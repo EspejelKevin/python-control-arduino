@@ -1,7 +1,4 @@
-# Título del Proyecto
-
-_ Activación de dispositovos arduino desde Python _
-
+# _ Activación de dispositovos arduino desde Python _
 
 ## Construido con 🛠️
 
