@@ -40,3 +40,13 @@ footer {
     margin: auto;
     width: 10rem;
 }
+
+.temperature-value{
+    font-size: 3.5rem;
+}
+
+.sun-moon-img{
+    height: 4rem;
+    width: 2rem;
+}
+
