@@ -46,7 +46,28 @@ footer {
 }
 
 .sun-moon-img{
-    height: 4rem;
-    width: 2rem;
+    height: 5rem;
+    width: 7rem;
+    display: inline;
+    margin: auto;
+    margin-bottom: 2rem;
+    margin-top: 2rem;
 }
 
+.card-img-top{
+    width: 100%;
+    height: 5rem;
+    object-fit: cover;
+}
+
+/*.img-alert{
+    filter: opacity(0.5) drop-shadow(0 0 0 blue);
+
+}*/
+
+.img-main{
+    display: block;
+    margin: auto;
+    width: 25rem;
+    height: 25rem;
+}

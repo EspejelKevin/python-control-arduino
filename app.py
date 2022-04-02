@@ -1,41 +1,82 @@
-from crypt import methods
 from flask import Flask, render_template, request
-import serial
+from connection import Connection
+from api import Api
 
 app = Flask(__name__)
+app.config["SECRET_KEY"]="development"
 
-try:
-    arduino = serial.Serial("/dev/ttyACM0", 9600)
-    print("Arduino conectado")
-except:
-    print("Arduino no conectado") 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET"])
 def index():
     
     return render_template("index.html")
 
-@app.route("/control/temperature", methods=["GET", "POST"])
-def control_temperature():
-    if request.method == "POST":
-        iotDevice = request.form["iot-device"]
-        if iotDevice == "Turn on lamp":
-            arduino.write(b"1")
-        elif iotDevice == "Turn off lamp":
-            arduino.write(b"2")
 
-    return render_template("temperature.html")
+@app.route("/control/temperature", methods=["GET"])
+def control_temperature():
+    try:
+        while True:
+            datos = conn.read_data()
+            api = Api()
+            api.post_sensor_temp(int(float(datos[0])))
+            api.post_sensor_foto(datos[1])
+
+            return render_template("temperature.html", temperature=datos[0], intensity=int(datos[1]))
+    except:
+        return """<h1 style='text-align:center; color:red; margin-top: 3rem'>Error connection</h1>
+                  <h2 style='text-align:center; color:blue; margin-top: 3rem;'>Try again later</h2>
+                  <center style='margin-top:3rem;'><a href='/' style="text-decoration:none; background-color:green; padding:10px; font-size:1rem; color:white; border-radius:5px;">Home</a></center>
+               """
+
 
 @app.route("/control/security", methods=["POST", "GET"])
 def control_security():
 
-    return render_template("security.html")
+    """
+    
+    RECIBIR LOS DATOS DEL ARDUINO PARA MOSTRAR UN MENSAJE DE
+    ALERTA
+    
+    """
+    try:
+        while True:
+            datos = conn.read_data()
+            ir = int(datos[2])
+            pir = int(datos[3])
+            
+            
+            return render_template("security.html", ir=ir, pir=pir)
+    except:
+        return """<h1 style='text-align:center; color:red; margin-top: 3rem'>Error connection</h1>
+                  <h2 style='text-align:center; color:blue; margin-top: 3rem;'>Try again later</h2>
+                  <center style='margin-top:3rem;'><a href='/' style="text-decoration:none; background-color:green; padding:10px; font-size:1rem; color:white; border-radius:5px;">Home</a></center>
+               """
+
 
 @app.route("/control/food", methods=["POST", "GET"])
 def control_food():
 
+    """
+    
+    ENVIAR UN 1 PARA ACTIVAR EL SISTEMA DE COMIDA
+    
+    """
+    if request.method == "POST":
+        day = request.form.get("days")
+        morning = request.form.get("morning")
+        afternoon = request.form.get("afternoon")
+        night = request.form.get("night")
+        amount = request.form.get("amount")
+
+        api = Api()
+        api.post_dispensador(day, amount, morning, afternoon, night)
+
+        conn.send_data()
+
+    
     return render_template("food.html")
 
 
 if __name__ == "__main__":
+    conn = Connection()
     app.run(debug=True, host="0.0.0.0", port=5000)
